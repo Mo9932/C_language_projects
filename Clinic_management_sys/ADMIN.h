@@ -23,6 +23,7 @@ void add_p(patient* head)
 	patient* tmp1=head;
 	patient* tmp=malloc(sizeof(patient));
 	tmp->next=NULL;
+	tmp->slot=NULL;
 	
 	printf("enter the name:");
 	scanf("%s",&tmp->name);
@@ -49,7 +50,6 @@ void add_p(patient* head)
 		}
 		tmp1=tmp1->next;
 	}
-	
 	
 }
 
@@ -101,15 +101,28 @@ void print_list(patient* head)
 
 void add_slot(rev* p,u8 x)
 {
-	rev* ptr=p;
-	rev* tmp=malloc(sizeof(rev));
-	tmp->id=x;
-	tmp->next=NULL;
-	while(ptr->next!=NULL)
+	rev* ptr1=p;
+	u8 count=0;
+	
+	while(ptr1->next!=NULL)
 	{
-		ptr=ptr->next;
+		ptr1=ptr1->next;
+		count++;
 	}
-	ptr->next=tmp;
+	
+	if(count!=5)
+	{
+		rev* ptr=p;
+		rev* tmp=malloc(sizeof(rev));
+		tmp->id=x;
+		tmp->next=NULL;
+		while(ptr->next!=NULL)
+		{
+			ptr=ptr->next;
+		}
+		ptr->next=tmp;
+	}
+	
 }
 void print_slot(rev* head)
 {
@@ -295,28 +308,47 @@ void print_p_res(patient* head,u32 tmp)
 		ptr=ptr->next;
 	}
 }
-void delet_slot(rev* slot,rev* un_slot,u8 id1)
+void delet_slot(rev* slot,u8 id1)
 {
 	rev* ptr=slot;
 	rev* tmp=slot;
 	rev* tmp1=slot;
 	
-	while(ptr->next!=NULL)
-	{
-		tmp=tmp1->next;
-		
-		if(tmp->id==id1)
+	if(slot->next!=NULL)	
+		while(ptr->next!=NULL)
 		{
-			ptr->next=tmp->next;
-			add_slot(un_slot,tmp->id);
-			free(tmp);
-			tmp->next=NULL;
-			break;
+			tmp=tmp1->next;
+			
+			if(tmp->id==id1)
+			{
+				ptr->next=tmp->next;
+				free(tmp);
+				tmp->next=NULL;
+				break;
+			}
+			else if(tmp->id!=id1)
+				ptr=ptr->next;
+			
+			tmp1=ptr;
 		}
-		else if(tmp->id!=id1)
-			ptr=ptr->next;
-		
-		tmp1=ptr;
+}
+
+void delet_p_res(patient*p,u8 z)
+{
+	patient*ptr=p;
+	ptr=ptr->next;
+	
+	while(ptr!=NULL)
+	{
+		if(ptr->slot!=NULL)
+		{
+			if(ptr->slot->id==z)
+			{	
+				ptr->slot=NULL;
+				break;
+			}
+		}
+		ptr=ptr->next;
 	}
 }
 
@@ -336,20 +368,27 @@ void add_res(rev*x,u8 y,patient*p,u8 z,rev* head)
 		}
 		ptr=ptr->next;
 	}
-	
-	while(ptr1!=NULL)
-	{
-		if((y-1)==ptr1->id)
-		{
-			break;
-		}
-		ptr1=ptr1->next;
-	}
 	if(count==1)
 	{
-		ptr->slot=ptr1;
-		delet_slot(x,head,y-1);
-	}
+		while(ptr1!=NULL)
+		{
+			if((y-1)==ptr1->id)
+			{
+				break;
+			}
+			ptr1=ptr1->next;
+		}
+		if(ptr->slot==NULL)
+		{
+			ptr->slot=ptr1;
+			add_slot(head,y-1);
+			delet_slot(x,y-1);
+		}
+		else if(ptr->slot!=NULL)
+		{
+			printf("\tthis patient has alrady reserved\n");
+		}
+	}	
 	else
 		printf("\tinvalid reservation\n");
 	printf("-------------------------------------\n");
@@ -396,13 +435,14 @@ void print_unslot(rev* head,patient* pt)
 				printf("\tslot(%u):from 2pm to 2:30pm\t",(ptr->id)+1);
 				while(p!=NULL)
 				{
-					if(p->slot->id==ptr->id)
-					{
-						count++;
-						printf("ID: %u\n",p->id);
-						printf("-------------------------------------\n");
-						break;
-					}
+					if(p->slot!=NULL)
+						if(p->slot->id==ptr->id)
+						{
+							count++;
+							printf("ID: %u\n",p->id);
+							printf("-------------------------------------\n");
+							break;
+						}
 					p=p->next;
 				}
 				break;
@@ -419,13 +459,14 @@ void print_unslot(rev* head,patient* pt)
 				printf("\tslot(%u):from 2:30pm to 3pm\t",(ptr1->id)+1);
 				while(p1!=NULL)
 				{
-					if(p1->slot->id==ptr1->id)
-					{
-						count++;
-						printf("ID: %u\n",p1->id);
-						printf("-------------------------------------\n");
-						break;
-					}
+					if(p1->slot!=NULL)
+						if(p1->slot->id==ptr1->id)
+						{
+							count++;
+							printf("ID: %u\n",p1->id);
+							printf("-------------------------------------\n");
+							break;
+						}
 					p1=p1->next;
 				}
 				break;
@@ -443,13 +484,14 @@ void print_unslot(rev* head,patient* pt)
 				printf("\tslot(%u):from 3:30pm to 4pm\t",(ptr2->id)+1);
 				while(p2!=NULL)
 				{
-					if(p2->slot->id==ptr2->id)
-					{
-						count++;
-						printf("ID: %u\n",p2->id);
-						printf("-------------------------------------\n");
-						break;
-					}
+					if(p2->slot!=NULL)
+						if(p2->slot->id==ptr2->id)
+						{
+							count++;
+							printf("ID: %u\n",p2->id);
+							printf("-------------------------------------\n");
+							break;
+						}
 					p2=p2->next;
 				}
 				break;
@@ -468,13 +510,14 @@ void print_unslot(rev* head,patient* pt)
 				printf("\tslot(%u):from 4pm to 4:30pm\t",(ptr3->id)+1);
 				while(p3!=NULL)
 				{
-					if(p3->slot->id==ptr3->id)
-					{
-						count++;
-						printf("ID: %u\n",p3->id);
-						printf("-------------------------------------\n");
-						break;
-					}
+					if(p3->slot!=NULL)
+						if(p3->slot->id==ptr3->id)
+						{
+							count++;
+							printf("ID: %u\n",p3->id);
+							printf("-------------------------------------\n");
+							break;
+						}
 					p3=p3->next;
 				}
 				break;
@@ -492,13 +535,14 @@ void print_unslot(rev* head,patient* pt)
 				printf("\tslot(%u):from 4:30pm to 5pm\t",(ptr4->id)+1);
 				while(p4!=NULL)
 				{
-					if(p4->slot->id==ptr4->id)
-					{
-						count++;
-						printf("ID: %u\n",p4->id);
-						printf("-------------------------------------\n");
-						break;
-					}
+					if(p4->slot!=NULL)
+						if(p4->slot->id==ptr4->id)
+						{
+							count++;
+							printf("ID: %u\n",p4->id);
+							printf("-------------------------------------\n");
+							break;
+						}
 					p4=p4->next;
 				}
 				break;

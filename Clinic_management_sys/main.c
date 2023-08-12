@@ -98,7 +98,9 @@ void main()
 							print_slot(un_slot);
 							printf("enter the number of reservation you want to free:");
 							scanf("%u",&tmp);
-							delet_slot(un_slot,slot,tmp-1);
+							delet_slot(un_slot,tmp-1);
+							add_slot(slot,tmp-1);
+							delet_p_res(queue,tmp-1);
 							break;
 						case 5:
 							printf("patient list:\n");
